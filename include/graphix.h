@@ -30,8 +30,13 @@ enum graphics_modes
     IBM8514LO = 0, IBM8514HI //both of these have the same value in ref.1
 };
 
+// Constants for closegraph
+#define CURRENT_WINDOW -1
+#define ALL_WINDOWS -2
+#define NO_CURRENT_WINDOW -3	
 
 //and finally,
 //the function prototypes
 void initgraph(int *graphdriver, int *graphmode, char const *pathtodriver);
 void putpixel(int x, int y, int color);
+void closegraph(int wid=ALL_WINDOWS);

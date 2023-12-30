@@ -21,17 +21,34 @@ void initgraph(int *graphdriver, int *graphmode, char const *pathtodriver)
 	//by default it takes size values from definitions.hpp but needs to be changed 
 	//so that it takes values based on graphdriver and graphmode
 	capybara.Init();
-	capybara.Run();
 
+	//the function that needs to be started on a separate thread
+	//the infinite loop needs to be on the separate thread to keep
+	//the window alive until closegraph is called or x is pressed
+	
+	if(!capybara.m_applicationData->m_threadRunning)
+	{
+		capybara.m_windowThread = std::thread(&sfml_gift::Application::Run, &capybara);
+		capybara.m_applicationData->m_threadRunning = true;
+	}
+}
 
+void closegraph(int wid)
+{
+	//to be implemented with wid
+	wid = wid;
+
+    if (capybara.m_applicationData->m_threadRunning && capybara.m_applicationData->m_window->isOpen())
+	{
+		capybara.m_applicationData->m_closeWindow = true;
+		capybara.waitForThread();
+	}
 }
 
 void putpixel(int x, int y, int color)
 {
-
-	sf::VertexArray point(sf::Points, 1);
-    point[0].position = sf::Vector2f(x, y);
-	point[0].color = sfml_gift::convertToSFMLcolor(color);
-    capybara.m_applicationData->m_window->draw(point);
+	sf::Vertex point(sf::Vector2f(x, y), sfml_gift::convertToSFMLcolor(color));
+	capybara.m_applicationData->m_window->draw(&point, 1, sf::Points);
+	capybara.m_applicationData->m_window->display();
 }
 

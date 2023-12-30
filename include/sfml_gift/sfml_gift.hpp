@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
+#include <thread>
 
 #include "definitions.hpp"
 #include "inputManager.hpp"
@@ -22,14 +23,16 @@ namespace sfml_gift
 
 		applicationData() : 
 			m_window(std::make_unique<sf::RenderWindow>()),
-			m_inputs(std::make_unique<sfml_gift::inputManager>())
+			m_inputs(std::make_unique<sfml_gift::inputManager>()),
+			m_threadRunning(false), m_closeWindow(false)
 		{
 		}
 
-		bool m_isFullScreen = false;
+		volatile bool m_threadRunning;
+		volatile bool m_closeWindow;
 	};
 
-	class Application 
+	class Application
 	{
 	public:
 		Application();
@@ -41,10 +44,12 @@ namespace sfml_gift
 		void Init(unsigned width = WIDTH, unsigned height = HEIGHT);
 
 		void Run();
+		void waitForThread();
 		
 		//this would usually be private but it needs to be accessed by the graphix.h functions
 		//so no privacy around these c neighborhoods
 		std::shared_ptr<sfml_gift::applicationData> m_applicationData;
+		std::thread m_windowThread;
 	private:
 	};
 

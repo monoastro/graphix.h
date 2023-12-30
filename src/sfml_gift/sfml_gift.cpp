@@ -1,6 +1,5 @@
 #include "sfml_gift.hpp"
-
-#include "graphix.h" //temporarily here beacuse code isn't multithreaded yet
+#include "graphix.h" 
 
 namespace sfml_gift
 {
@@ -13,6 +12,10 @@ namespace sfml_gift
 
 	Application::~Application()
 	{
+		if (m_applicationData->m_threadRunning)
+		{
+			waitForThread();
+		}
 	}
 
 	//the window isn't created until this function is called
@@ -20,29 +23,30 @@ namespace sfml_gift
 	void Application::Init(unsigned width, unsigned height)
 	{
 		m_applicationData->m_window->create(sf::VideoMode(width, height), Title);
+		m_applicationData->m_window->clear(sf::Color::Black);
 	}
 
 	void Application::Run()
 	{
-		while(m_applicationData->m_window->isOpen())
+		while(m_applicationData->m_window->isOpen() && !m_applicationData->m_closeWindow)
 		{
-			
 			//Input
 			m_applicationData->m_inputs->pollEvent(*(this->m_applicationData->m_window));
-			//Draw
-			m_applicationData->m_window->clear(sf::Color::Black);
 
-			//without multithreading this is where the reset of the code needs to be tested for now
-			for(int i = 0; i < 1000; i++)
-			{
-				putpixel(i, i, GREEN);
-			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
-			//Display
-			m_applicationData->m_window->display();
+			//drawing and clearing the window are left to the user; that's what makes it a graphics library	
 		}
 	}
 
+	void Application::waitForThread()
+	{
+		if (m_applicationData->m_threadRunning)
+		{
+			m_windowThread.join();
+			m_applicationData->m_threadRunning = false;
+		}
+	}
 
 	//pain intensifies
 	sf::Color convertToSFMLcolor(int color)
